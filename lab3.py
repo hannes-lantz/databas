@@ -1,8 +1,24 @@
-from bottle import route, run, response, get, request
+from bottle import route, run, response, get, request, post
 import sqlite3, json 
 
 db = sqlite3.connect('movies.sqlite')
 cursor = db.cursor()
+
+def imdb_nbr_exist(imdb_nbr):
+	c = get_movie_by_nbr(imdb_nbr)
+	return c.fetchone() is not None
+
+
+def theater_exist(name):
+	cursor.execute(
+		"""
+		SELECT t_name
+		FROM   theaters
+		WHERE  t_name = ?
+		""",
+		[name]
+	)
+	return cursor.fetchone() is not None
 
 def response(data):
     return json.dumps(data, indent=4) + "\n"
@@ -60,5 +76,52 @@ def reset():
 	db.commit()
 	response.status = 200 
 	return "OK"
+
+@get('/performances')
+def get_performances():
+	cursor.execute(
+		"""
+		SELECT performance_nbr, start_date, start_time, imdb_nbr, t_name 
+		FROM   performances
+		"""
+	)
+	s = [{"performance_nbr": performance_nbr, "start_date": start_date, "start_time": start_time, "imdb_nbr": imdb_nbr, "t_name": t_name}
+		for (performance_nbr, start_date, start_time, imdb_nbr, t_name) in cursor]
+	return response({"data": s})
+
+@post('/performances')
+def add_performance():
+	query =	"""
+		INSERT
+		INTO performances(imdb_nbr, t_name, start_date, start_time)
+		VALUES (?,?,?,?)
+		"""
+	p = []
+	if request.query.imdb_nbr and request.query.t_name and request.query.start_date and request.query.start_time:
+		if imdb_nbr_exist(request.query.imdb_nbr) and theater_exist(request.query.t_name):
+			p.append(request.query.imdb_nbr)
+			p.append(request.query.t_name)
+			p.append(request.query.start_date)
+			p.append(request.query.start_time)
+		else:
+			response.status = 400
+			return "No such movie or theater"
+	else:
+		response.status = 400
+		return "Missing parameter"
+
+	cursor.execute(query, p)
+	db.commit()
+	cursor.execute(
+        """
+        SELECT   performance_nbr
+        FROM     performances
+        
+        """
+    )
+	performance_nbr = cursor.fetchone()[0]
+	response.status = 200
+	return "/performances/%s" % (performance_nbr)
+
 
 run(host='localhost', port=7007, debug=True)
