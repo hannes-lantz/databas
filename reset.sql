@@ -45,7 +45,7 @@ CREATE TABLE movies (
 );
 
 CREATE TABLE performances (
-  performance_nbr int,
+  performance_nbr iNT DEFAULT (lower(hex(randomblob(16)))),
   start_time TIME(0),
   imdb_nbr varchar(255) NOT NULL, 
   t_name varchar(255) NOT NULL,

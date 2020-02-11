@@ -5,7 +5,7 @@ db = sqlite3.connect('movies.sqlite')
 cursor = db.cursor()
 
 def imdb_nbr_exist(imdb_nbr):
-	c = get_movie_by_nbr(imdb_nbr)
+	c = get_by_imdb_nbr(imdb_nbr)
 	return c.fetchone() is not None
 
 
@@ -53,7 +53,7 @@ def get_movies():
 		p.append(request.query.title)
 	if request.query.p_year:
 		query += "AND p_year = ?"
-		p.append(request.query.p_year)
+		p.append(request.query.year)
 	cursor.execute(query, p)
 	s = [{"imdb_nbr": imdb_nbr, "title": title, "year": p_year}
 		for (imdb_nbr, title, p_year) in cursor]
@@ -97,26 +97,22 @@ def add_performance():
 		VALUES (?,?,?,?)
 		"""
 	p = []
-	if request.query.imdb_nbr and request.query.t_name and request.query.start_date and request.query.start_time:
-		if imdb_nbr_exist(request.query.imdb_nbr) and theater_exist(request.query.t_name):
-			p.append(request.query.imdb_nbr)
-			p.append(request.query.t_name)
-			p.append(request.query.start_date)
-			p.append(request.query.start_time)
-		else:
-			response.status = 400
-			return "No such movie or theater"
+	
+	if imdb_nbr_exist(request.query.imdb) and theater_exist(request.query.theater):
+		p.append(request.query.imdb)
+		p.append(request.query.theater)
+		p.append(request.query.date)
+		p.append(request.query.time)
 	else:
 		response.status = 400
-		return "Missing parameter"
-
+		return "No such movie or theater"
+	
 	cursor.execute(query, p)
 	db.commit()
 	cursor.execute(
         """
         SELECT   performance_nbr
         FROM     performances
-        
         """
     )
 	performance_nbr = cursor.fetchone()[0]
