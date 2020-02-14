@@ -117,6 +117,15 @@ def get_movie(imdb_nbr):
 
 @post('/reset')
 def reset():
+	cursor.executescript(
+		"""
+		DELETE FROM theaters;
+		DELETE FROM movies;
+		DELETE FROM customers;
+		DELETE FROM performances;
+		DELETE FROM tickets;
+		"""
+	)
 	with open('reset.sql', 'r') as sql_reset:
 	    sql_script = sql_reset.read()
 
@@ -129,7 +138,7 @@ def reset():
 def get_performances():
 	cursor.execute(
 		"""
-		SELECT performance_nbr, start_date, start_time, title, p_year, t_name, (capacity - count(id)) AS remaining_seats
+		SELECT performance_nbr, start_date, start_time, title, t_name, (capacity - count(id)) AS remaining_seats
 		FROM   performances
 		JOIN   movies
 		USING  (imdb_nbr)

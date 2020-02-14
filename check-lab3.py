@@ -111,11 +111,11 @@ def buy_tickets(user_id):
         for _ in range(2):
             resource = url('/performances')
             r = requests.get(resource)
-            performance = next(p for p in response_to_dicts(r) if p['theater'] == 'Kino' and p['remainingSeats'] > 0)
-            perf_id = performance['performanceId']
-            seats_left = performance['remainingSeats']
+            performance = next(p for p in response_to_dicts(r) if p['t_name'] == 'Kino' and p['reminingSeats'] > 0)
+            perf_id = performance['performance_nbr']
+            seats_left = performance['reminingSeats']
             print("================================")
-            print(f"Buying tickets to {performance['title']} on {performance['date']}")
+            #print(f"Buying tickets to {performance['title']} on {performance['date']}")
             buy_url = url(f'/tickets?user={user_id}&performance={perf_id}&pwd=dobido')
             print("--------------------------------")
             print(f"curl -X POST {buy_url}")
