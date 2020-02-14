@@ -16,7 +16,7 @@ CREATE TABLE customers (
   c_name varchar(255),
   password varchar(255),
   PRIMARY KEY (username)
- 
+
 );
 
 CREATE TABLE tickets (
@@ -27,14 +27,14 @@ CREATE TABLE tickets (
   PRIMARY KEY (id),
   FOREIGN KEY (performance_nbr) references performances(performance_nbr),
   FOREIGN KEY (username) references customers(username)
- 
+
 );
 
 CREATE TABLE theaters (
   t_name varchar(255),
   capacity int,
   PRIMARY KEY (t_name)
-  
+
 );
 
 CREATE TABLE movies (
@@ -47,18 +47,22 @@ CREATE TABLE movies (
 CREATE TABLE performances (
   performance_nbr iNT DEFAULT (lower(hex(randomblob(16)))),
   start_time TIME(0),
-  imdb_nbr varchar(255) NOT NULL, 
+  imdb_nbr varchar(255) NOT NULL,
   t_name varchar(255) NOT NULL,
   start_date DATE(0) NOT NULL,
   PRIMARY KEY (performance_nbr),
-  FOREIGN KEY (imdb_nbr) references movies(imdb_nbr), 
+  FOREIGN KEY (imdb_nbr) references movies(imdb_nbr),
   FOREIGN KEY (t_name) references theaters(t_name)
 );
 
-
+DELETE FROM customers;
+DELETE FROM tickets;
+DELETE FROM theaters;
+DELETE FROM movies;
+DELETE FROM performances;
 
 INSERT INTO customers
-VALUES 
+VALUES
 ('alice', 'Alice', 'dobido'),
 ('bob', 'Bob', 'whatsinaname');
 
@@ -66,19 +70,11 @@ INSERT INTO theaters
 VALUES
 ('Kino', 10),
 ('Södran', 16),
-('Scandia', 100); 
+('Scandia', 100);
 
 INSERT INTO movies
-VALUES 
+VALUES
 ('tt5580390', 'The shape of water', 2017),
 ('tt4975722', 'Moonlight', 2016),
 ('tt1895587', 'Spotlight', 2015),
 ('tt2562232', 'Birdman', 2014);
-
-
-
-
-
-
-
-
