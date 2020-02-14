@@ -115,7 +115,7 @@ def get_movie(imdb_nbr):
 		for (imdb_nbr, title, p_year) in cursor]
 	return response({"data": s})
 
-@route('/reset')
+@post('/reset')
 def reset():
 	with open('reset.sql', 'r') as sql_reset:
 	    sql_script = sql_reset.read()
@@ -129,12 +129,15 @@ def reset():
 def get_performances():
 	cursor.execute(
 		"""
-		SELECT performance_nbr, start_date, start_time, imdb_nbr, t_name, (capacity - count(id)) as reminingSeats
+		SELECT performance_nbr, start_date, start_time, title, p_year, t_name, (capacity - count(id)) AS remaining_seats
 		FROM   performances
-		JOIN   tickets
-		USING  (performance_nbr)
+		JOIN   movies
+		USING  (imdb_nbr)
 		JOIN   theaters
 		USING  (t_name)
+		LEFT JOIN tickets
+		USING  (performance_nbr)
+		GROUP BY performance_nbr		
 		"""
 	)
 	s = [{"performance_nbr": performance_nbr, "start_date": start_date, "start_time": start_time, "imdb_nbr": imdb_nbr, "t_name": t_name, "reminingSeats": reminingSeats}
@@ -155,6 +158,7 @@ def add_performance():
 			p.append(request.query.theater)
 			p.append(request.query.date)
 			p.append(request.query.time)
+
 		else:
 			response.status = 400
 			return "No such movie or theater"

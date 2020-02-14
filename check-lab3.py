@@ -153,12 +153,12 @@ def main():
     check_movie_imdb("tt5580390")
     add_performances(
         'tt5580390',
-        ['Kino', 'Skandia'],
+        ['Kino', 'Scandia'],
         ['2019-02-22', '2019-02-23']
     )
     add_performances(
         'tt2562232',
-        ['Kino', 'Skandia'],
+        ['Kino', 'scandia'],
         ['2019-02-24', '2019-02-25']
     )
     buy_tickets('alice')
